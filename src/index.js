@@ -39,11 +39,26 @@ app.post("/api/v1/urls", async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(503);
+        res.status(503).send();
     }
 })
 
-app.get("/", (req, res) => {res.send("Hello World!")})
+app.get("/:url_id", async (req, res) => {
+    try {
+        const { url_id } = req.params;
+        console.log("GET", url_id);
+        const doc = await URLId.findOne({ url_id }).exec();
+        if (!doc || doc.expireAt <= new Date())
+            return res.status(404).send();
+
+        res.redirect(doc.url);
+    } catch (error) {
+        console.error(error);
+        res.status(503).send();
+    }
+})
+
+app.get("/", (req, res) => { res.send("Hello World!") })
 
 async function main() {
     await mongo.connect();
