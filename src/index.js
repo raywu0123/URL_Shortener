@@ -35,7 +35,7 @@ app.post("/api/v1/urls", async (req, res) => {
         await URLId({ url, url_id, expireAt }).save();
         res.json({
             id: url_id,
-            shortenUrl: `${process.env.URL}/${url_id}`
+            shortUrl: `${process.env.URL}/${url_id}`
         });
     } catch (error) {
         console.error(error);
