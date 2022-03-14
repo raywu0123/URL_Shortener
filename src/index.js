@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import mongo from './mongo.js';
+import redis, { redisClient } from './redis.js';
 import { URLId } from './models/URLId.js';
 import Counter from './Counter.js';
 
@@ -33,6 +34,8 @@ app.post("/api/v1/urls", async (req, res) => {
         await counter.step();
         const url_id = counter.getEncoded();
         await URLId({ url, url_id, expireAt }).save();
+        await redisClient.del(url_id); // invalidate cache
+        
         res.json({
             id: url_id,
             shortUrl: `${process.env.URL}/${url_id}`
@@ -47,7 +50,12 @@ app.get("/:url_id", async (req, res) => {
     try {
         const { url_id } = req.params;
         console.log("GET", url_id);
-        const doc = await URLId.findOne({ url_id }).exec();
+
+        let doc = JSON.parse(await redisClient.get(url_id));
+        if (!doc) {
+            doc = await URLId.findOne({ url_id }).exec();
+            await redisClient.set(url_id, JSON.stringify(doc));
+        }
         if (!doc || doc.expireAt <= new Date())
             return res.status(404).send();
 
@@ -61,6 +69,7 @@ app.get("/:url_id", async (req, res) => {
 app.get("/", (req, res) => { res.send("Hello World!") })
 
 async function main() {
+    await redis.connect();
     await mongo.connect();
     await counter.init();
     const port = process.env.PORT || 5000;
