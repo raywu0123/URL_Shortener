@@ -1,0 +1,20 @@
+env:
+  browser: true
+  es2021: true
+  mocha: true
+extends:
+  - airbnb-base
+parserOptions:
+  ecmaVersion: latest
+  sourceType: module
+rules: {
+  no-underscore-dangle: 0,
+  no-console: 0,
+  no-unused-expressions: 0,
+  no-plusplus: 0,
+  no-await-in-loop: 0,
+  new-cap: 0,
+  import/extensions: 0,
+  camelcase: ["error", { allow: ["url_id"] }],
+  consistent-return: 0,
+}
