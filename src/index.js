@@ -5,17 +5,21 @@ dotenv.config();
 import mongo from './mongo.js';
 import redis, { redisClient } from './redis.js';
 import { URLId } from './models/URLId.js';
-import Counter from './Counter.js';
+import Counter, { CHARSET } from './counter.js';
 
-const CHARSET = [
-    "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
-    "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
-    "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
-    "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
-    "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
-]
 const { URL_ID_LEN, RANGE_LEN } = process.env;
-const counter = new Counter(CHARSET, URL_ID_LEN, RANGE_LEN);
+const counter = new Counter({
+    charset: CHARSET, 
+    urlIdLen: URL_ID_LEN, 
+    rangeLen: RANGE_LEN,
+    getRangeCounter: async () => (
+        await Range.findOneAndUpdate(
+            {}, 
+            { $inc: { counter: 1 } },
+            { upsert: 1, new: 1 },
+        ).exec()
+    ).counter
+});
 
 
 const app = express();
