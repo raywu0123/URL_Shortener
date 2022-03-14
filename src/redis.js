@@ -1,13 +1,19 @@
 import redisLib from "redis";
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 
-
-var redis = { connect };
+const redis = { connect };
 export var redisClient = null; 
 
 async function connect() {
-    redisClient = redisLib.createClient({ url: process.env.REDIS_URL });
-    await redisClient.connect();
-    console.log("Redis connected!")
+    if (process.env.NODE_ENV === 'test') {
+        const redisMock = require('redis-mock');
+        redisClient = redisMock.createClient();
+    } else {
+        redisClient = redisLib.createClient({ url: process.env.REDIS_URL });
+        await redisClient.connect();
+        console.log("Redis connected!")    
+    }
 }
 
 export default redis;

@@ -35,7 +35,7 @@ app.post("/api/v1/urls", async (req, res) => {
         const url_id = counter.getEncoded();
         await URLId({ url, url_id, expireAt }).save();
         await redisClient.del(url_id); // invalidate cache
-        
+
         res.json({
             id: url_id,
             shortUrl: `${process.env.URL}/${url_id}`
@@ -49,7 +49,6 @@ app.post("/api/v1/urls", async (req, res) => {
 app.get("/:url_id", async (req, res) => {
     try {
         const { url_id } = req.params;
-        console.log("GET", url_id);
 
         let doc = JSON.parse(await redisClient.get(url_id));
         if (!doc) {
