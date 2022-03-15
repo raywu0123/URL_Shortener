@@ -60,7 +60,8 @@ app.get('/:url_id', async (req, res) => {
       doc = await URLId.findOne({ url_id }).exec();
       await redisClient.set(url_id, JSON.stringify(doc));
     }
-    if (!doc || doc.expireAt <= new Date()) { return res.status(404).send(); }
+    if (!doc) { return res.status(404).json({ error: 'url_id not found' }); }
+    if (doc.expireAt <= new Date()) { return res.status(404).send({ error: 'expired' }); }
 
     res.redirect(doc.url);
   } catch (error) {
