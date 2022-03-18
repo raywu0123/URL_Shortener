@@ -58,3 +58,8 @@
     ```
     npm test
     ```
+4. Update GKE secrets
+    ```
+    kubectl delete secret mysecret
+    kubectl create secret generic mysecret --from-env-file .env
+    ```
