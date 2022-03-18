@@ -43,7 +43,7 @@ app.post('/api/v1/urls', async (req, res) => {
 
     res.json({
       id: url_id,
-      shortUrl: `${process.env.URL}/${url_id}`,
+      shortUrl: `${req.protocol}://${req.get('host')}/${url_id}`,
     });
   } catch (error) {
     console.error(error);
