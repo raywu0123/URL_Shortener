@@ -61,15 +61,22 @@ app.get('/:url_id', async (req, res) => {
       await redisClient.set(url_id, JSON.stringify(doc));
     }
     if (!doc) { return res.status(404).json({ error: 'url_id not found' }); }
-    if (doc.expireAt <= new Date()) { return res.status(404).send({ error: 'expired' }); }
 
-    res.redirect(doc.url);
+    const now = new Date();
+    if (doc.expireAt <= now) { return res.status(404).send({ error: 'expired' }); }
+    res
+      .set('Cache-control', `public, max-age=${Math.floor((new Date(doc.expireAt) - now) / 1000)}`)
+      .redirect(doc.url);
   } catch (error) {
     console.error(error);
     res.status(503).send();
   }
 });
 
-app.get('/', (req, res) => { res.send('Hello World!'); });
+app.get('/', (req, res) => {
+  res
+    .set('Cache-control', 'public, max-age=300')
+    .send('Hello World!');
+});
 
 export default app;

@@ -45,20 +45,15 @@
     ```
 
 ## Dev
-1. Start
-    ```
-    docker-compose -f docker-compose.dev.yaml up
-    ```
-    The server will be exposed to localhost:5000
-2. Lint
+1. Lint
     ```
     npm build
     ```
-3. Test
+2. Test
     ```
     npm test
     ```
-4. Update GKE secrets
+3. Update GKE secrets
     ```
     kubectl delete secret mysecret
     kubectl create secret generic mysecret --from-env-file .env
